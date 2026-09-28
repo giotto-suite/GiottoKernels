@@ -26,8 +26,9 @@ their own packages.
 Multithreaded kernels take \code{n_threads}, default \code{NULL}, resolved by
 \code{\link[=kernel_threads]{kernel_threads()}}: an explicit value is used as given, otherwise
 \code{options(gkernels.n_threads)}, otherwise 1. Threads are Rust \code{std::thread}
-workers inside the call, so no R process is forked. For a fixed thread count
-results are bit-identical across runs.
+workers inside the call, so no R process is forked. Results are
+bit-identical across runs for a fixed thread count (\code{\link[=gram_stream]{gram_stream()}}) or for
+any thread count (\code{\link[=project_stream]{project_stream()}}).
 }
 
 \seealso{

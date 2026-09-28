@@ -1,5 +1,6 @@
 test_that("has_kernel reports compiled kernels", {
     expect_true(has_kernel("gram_stream"))
+    expect_true(has_kernel("project_stream"))
     expect_false(has_kernel("not_a_kernel"))
     expect_error(has_kernel(c("a", "b")), "single string")
 })

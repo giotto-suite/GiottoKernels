@@ -15,4 +15,9 @@ kernels_rs <- function() .Call(wrap__kernels_rs)
 #' @noRd
 gram_stream_rs <- function(stream, n_features, n_threads) .Call(wrap__gram_stream_rs, stream, n_features, n_threads)
 
+#' `A %*% V` over a nanoarrow_array_stream of (row_id, col_id, value).
+#' Argument checks live in the R wrapper `project_stream()`.
+#' @noRd
+project_stream_rs <- function(stream, v, n_rows, n_threads) .Call(wrap__project_stream_rs, stream, v, n_rows, n_threads)
+
 # nolint end

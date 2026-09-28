@@ -1,6 +1,6 @@
 Package: GiottoKernels
 Title: Optional Compiled Kernels for the Giotto Suite
-Version: 0.1.0
+Version: 0.2.0
 Authors@R:
     person("George", "Chen", , "jiajic@bu.edu", role = c("aut", "cre"))
 Description: Small compiled compute kernels for the Giotto suite. Each takes

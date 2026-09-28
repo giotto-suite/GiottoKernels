@@ -3,4 +3,5 @@
 export(gram_stream)
 export(has_kernel)
 export(kernel_threads)
+export(project_stream)
 useDynLib(GiottoKernels, .registration = TRUE)

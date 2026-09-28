@@ -55,6 +55,20 @@ Measured on the pass it replaces, 169,420 cells x 2,000 features,
 | `gram_stream()`, 1 thread | 1.6 s |
 | `gram_stream()`, 8 threads | 0.64 s |
 
+### `project_stream()`
+
+The second pass of Gram-eigen PCA: `A %*% V`, cell coordinates from the
+loadings, from the same kind of stream. Only stored entries are touched
+(`nnz * ncol(V)`), and every output row is built by one thread from its
+entries in stream order, so the result is bit-identical at any thread count.
+Centering is left to the caller: `(A - 1 mu^T) V = A V - 1 (mu^T V)`.
+
+```r
+coords <- GiottoKernels::project_stream(reader, V, n_rows = n_cells)
+```
+
+Its layout requirement and checks are the same as `gram_stream()`'s.
+
 ## Threads
 
 Multithreaded kernels take `n_threads`, default `NULL`:
@@ -71,7 +85,8 @@ GiottoKernels::gram_stream(reader, 2000L)   # 8 threads
 GiottoKernels::gram_stream(reader, 2000L, n_threads = 2L)
 ```
 
-A fixed thread count gives bit-identical results across runs. Each Gram worker
+`gram_stream()` gives bit-identical results across runs for a fixed thread
+count; `project_stream()` for any thread count. Each Gram worker
 holds its own `P x P` accumulator, so the thread count is lowered when needed
 to stay within `options(gkernels.memory_gb)` (default 4).
 
