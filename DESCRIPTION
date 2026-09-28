@@ -1,0 +1,27 @@
+Package: GiottoKernels
+Title: Optional Compiled Kernels for the Giotto Suite
+Version: 0.1.0
+Authors@R:
+    person("George", "Chen", , "jiajic@bu.edu", role = c("aut", "cre"))
+Description: Small compiled compute kernels for the Giotto suite. Each takes
+    plain vectors or an Arrow C stream and returns plain vectors, and knows
+    nothing about Giotto's classes. Every kernel is optional: the calling
+    package checks has_kernel() and otherwise runs its own R implementation,
+    so installing this package only changes speed, never results beyond
+    floating-point rounding.
+License: MIT + file LICENSE
+URL: https://github.com/giotto-suite/GiottoKernels
+BugReports: https://github.com/giotto-suite/GiottoKernels/issues
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+Config/rextendr/version: 0.5.0
+SystemRequirements: Cargo (Rust's package manager), rustc >= 1.65
+Depends:
+    R (>= 4.2)
+Imports:
+    nanoarrow,
+    parallel
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0
