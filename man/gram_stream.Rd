@@ -4,7 +4,7 @@
 \alias{gram_stream}
 \title{Gram matrix and feature sums from a stream of triplets}
 \usage{
-gram_stream(stream, n_features, n_threads = kernel_threads())
+gram_stream(stream, n_features, n_threads = NULL)
 }
 \arguments{
 \item{stream}{anything \code{\link[nanoarrow:as_nanoarrow_array_stream]{nanoarrow::as_nanoarrow_array_stream()}} accepts: an
@@ -16,10 +16,11 @@ The stream is consumed.}
 \item{n_features}{number of features \code{P}; every \code{col_id} must be in
 \verb{1..n_features}.}
 
-\item{n_threads}{worker threads; see \code{\link[=kernel_threads]{kernel_threads()}}. A fixed count gives
+\item{n_threads}{worker threads, resolved by \code{\link[=kernel_threads]{kernel_threads()}}: \code{NULL}
+(default) uses \code{options(gkernels.n_threads)}, else 1. A fixed count gives
 bit-identical results across runs. Each thread keeps its own
 \verb{n_features x n_features} accumulator, so the count is lowered, if
-needed, to keep all of them within \code{options(GiottoKernels.memory_gb)}
+needed, to keep all of them within \code{options(gkernels.memory_gb)}
 (default 4).}
 }
 \value{
@@ -58,5 +59,5 @@ tri <- data.frame(
     col_id = c(1L, 2L, 2L),
     value  = c(1, 2, 3)
 )
-gram_stream(tri, n_features = 2L, n_threads = 1L)
+gram_stream(tri, n_features = 2L)
 }

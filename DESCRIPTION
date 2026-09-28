@@ -19,8 +19,7 @@ SystemRequirements: Cargo (Rust's package manager), rustc >= 1.65
 Depends:
     R (>= 4.2)
 Imports:
-    nanoarrow,
-    parallel
+    nanoarrow
 Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

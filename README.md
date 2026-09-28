@@ -57,11 +57,23 @@ Measured on the pass it replaces, 169,420 cells x 2,000 features,
 
 ## Threads
 
-Multithreaded kernels take `n_threads`, defaulting to `kernel_threads()`:
-`options(GiottoKernels.threads)`, or up to 8 physical cores when unset. A
-fixed thread count gives bit-identical results across runs. Each Gram worker
+Multithreaded kernels take `n_threads`, default `NULL`:
+
+1. an explicit value is used as given (coerced to integer);
+2. `NULL` falls back to `options(gkernels.n_threads)`;
+3. and that defaults to 1.
+
+So a kernel is single-threaded unless the caller or the session asks for more:
+
+```r
+options(gkernels.n_threads = 8L)            # session default
+GiottoKernels::gram_stream(reader, 2000L)   # 8 threads
+GiottoKernels::gram_stream(reader, 2000L, n_threads = 2L)
+```
+
+A fixed thread count gives bit-identical results across runs. Each Gram worker
 holds its own `P x P` accumulator, so the thread count is lowered when needed
-to stay within `options(GiottoKernels.memory_gb)` (default 4).
+to stay within `options(gkernels.memory_gb)` (default 4).
 
 ## Installation
 

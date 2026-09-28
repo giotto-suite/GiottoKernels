@@ -23,8 +23,9 @@ their own packages.
 }
 \section{Threads}{
 
-Multithreaded kernels take `n_threads`, defaulting to [kernel_threads()],
-which reads `options(GiottoKernels.threads)`. Threads are Rust `std::thread`
+Multithreaded kernels take \code{n_threads}, default \code{NULL}, resolved by
+\code{\link[=kernel_threads]{kernel_threads()}}: an explicit value is used as given, otherwise
+\code{options(gkernels.n_threads)}, otherwise 1. Threads are Rust \code{std::thread}
 workers inside the call, so no R process is forked. For a fixed thread count
 results are bit-identical across runs.
 }

@@ -2,18 +2,22 @@
 % Please edit documentation in R/kernels.R
 \name{kernel_threads}
 \alias{kernel_threads}
-\title{Default thread count for multithreaded kernels}
+\title{Resolve the thread count for a kernel call}
 \usage{
-kernel_threads()
+kernel_threads(n_threads = NULL)
+}
+\arguments{
+\item{n_threads}{\code{NULL}, or a positive whole number.}
 }
 \value{
 a positive integer.
 }
 \description{
-Reads \code{options(GiottoKernels.threads)}. When unset, uses up to 8 of the
-cores \code{parallel::detectCores()} reports; past about 8 the Gram kernel
-measured no faster.
+An explicit \code{n_threads} is used as given. \code{NULL} falls back to
+\code{options(gkernels.n_threads)}, and to 1 when that is unset, so a kernel runs
+single-threaded unless the caller or the session asks for more.
 }
 \examples{
-kernel_threads()
+kernel_threads()   # 1, or options(gkernels.n_threads)
+kernel_threads(4)  # 4
 }

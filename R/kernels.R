@@ -20,25 +20,27 @@ has_kernel <- function(name) {
     name %in% kernels_rs()
 }
 
-#' Default thread count for multithreaded kernels
+#' Resolve the thread count for a kernel call
 #'
-#' Reads `options(GiottoKernels.threads)`. When unset, uses up to 8 of the
-#' cores `parallel::detectCores()` reports; past about 8 the Gram kernel
-#' measured no faster.
+#' An explicit `n_threads` is used as given. `NULL` falls back to
+#' `options(gkernels.n_threads)`, and to 1 when that is unset, so a kernel runs
+#' single-threaded unless the caller or the session asks for more.
 #'
+#' @param n_threads `NULL`, or a positive whole number.
 #' @returns a positive integer.
 #' @examples
-#' kernel_threads()
+#' kernel_threads()   # 1, or options(gkernels.n_threads)
+#' kernel_threads(4)  # 4
 #' @export
-kernel_threads <- function() {
-    n <- getOption("GiottoKernels.threads", NULL)
-    if (is.null(n)) {
-        n <- min(8L, parallel::detectCores(logical = FALSE), na.rm = TRUE)
+kernel_threads <- function(n_threads = NULL) {
+    src <- "`n_threads`"
+    if (is.null(n_threads)) {
+        n_threads <- getOption("gkernels.n_threads", 1L)
+        src <- "option `gkernels.n_threads`"
     }
-    n <- suppressWarnings(as.integer(n))
+    n <- suppressWarnings(as.integer(n_threads))
     if (length(n) != 1L || is.na(n) || n < 1L) {
-        stop("[kernel_threads] option `GiottoKernels.threads` must be a positive integer",
-            call. = FALSE)
+        stop("[kernel_threads] ", src, " must be a positive integer", call. = FALSE)
     }
     n
 }

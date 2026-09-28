@@ -57,7 +57,7 @@ test_that("an empty stream gives zeros", {
 })
 
 test_that("the memory budget lowers the thread count, not the result", {
-    old <- options(GiottoKernels.memory_gb = 0)
+    old <- options(gkernels.memory_gb = 0)
     on.exit(options(old), add = TRUE)
     expect_identical(GiottoKernels:::.threads_within_budget(P), 1L)
     expect_equal(gram_stream(tri, P, n_threads = 2L)$G, ref$G, tolerance = 1e-12)
@@ -98,4 +98,5 @@ test_that("bad input is rejected", {
     expect_error(gram_stream(tri[, c("row_id", "value")], P, 1L), "no column 'col_id'")
     expect_error(gram_stream(tri, 0L, 1L), "`n_features` must be a positive integer")
     expect_error(gram_stream(tri, P, 0L), "`n_threads` must be a positive integer")
+    expect_error(gram_stream(tri, P, "two"), "`n_threads` must be a positive integer")
 })

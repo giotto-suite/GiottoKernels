@@ -29,10 +29,11 @@
 #'   The stream is consumed.
 #' @param n_features number of features `P`; every `col_id` must be in
 #'   `1..n_features`.
-#' @param n_threads worker threads; see [kernel_threads()]. A fixed count gives
+#' @param n_threads worker threads, resolved by [kernel_threads()]: `NULL`
+#'   (default) uses `options(gkernels.n_threads)`, else 1. A fixed count gives
 #'   bit-identical results across runs. Each thread keeps its own
 #'   `n_features x n_features` accumulator, so the count is lowered, if
-#'   needed, to keep all of them within `options(GiottoKernels.memory_gb)`
+#'   needed, to keep all of them within `options(gkernels.memory_gb)`
 #'   (default 4).
 #' @returns a list with `G`, the `n_features x n_features` symmetric Gram
 #'   matrix, and `s`, the length-`n_features` feature sums.
@@ -42,17 +43,14 @@
 #'     col_id = c(1L, 2L, 2L),
 #'     value  = c(1, 2, 3)
 #' )
-#' gram_stream(tri, n_features = 2L, n_threads = 1L)
+#' gram_stream(tri, n_features = 2L)
 #' @export
-gram_stream <- function(stream, n_features, n_threads = kernel_threads()) {
+gram_stream <- function(stream, n_features, n_threads = NULL) {
     n_features <- suppressWarnings(as.integer(n_features))
     if (length(n_features) != 1L || is.na(n_features) || n_features < 1L) {
         stop("[gram_stream] `n_features` must be a positive integer", call. = FALSE)
     }
-    n_threads <- suppressWarnings(as.integer(n_threads))
-    if (length(n_threads) != 1L || is.na(n_threads) || n_threads < 1L) {
-        stop("[gram_stream] `n_threads` must be a positive integer", call. = FALSE)
-    }
+    n_threads <- kernel_threads(n_threads)
     # One P x P accumulator per worker plus the result.
     n_threads <- min(n_threads, .threads_within_budget(n_features))
     stream <- nanoarrow::as_nanoarrow_array_stream(stream)
@@ -60,7 +58,7 @@ gram_stream <- function(stream, n_features, n_threads = kernel_threads()) {
 }
 
 .threads_within_budget <- function(n_features) {
-    budget <- getOption("GiottoKernels.memory_gb", 4) * 1e9
+    budget <- getOption("gkernels.memory_gb", 4) * 1e9
     per <- as.numeric(n_features)^2 * 8
     as.integer(max(1, floor(budget / per) - 1))
 }
