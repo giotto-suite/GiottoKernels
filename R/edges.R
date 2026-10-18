@@ -6,10 +6,9 @@
 #' `e` joins rows `from[e]` and `to[e]`. List each edge once. This is the
 #' cross-cell term of Moran's I, Geary's C and join counts.
 #'
-#' The stream is read into memory once, about 28 bytes per stored value at
-#' peak (12 bytes held), so a caller that must bound memory streams a subset
-#' of the features per call and combines the results; the sums of different
-#' features are independent.
+#' The stream is read into memory once, 16 bytes per stored value, so a caller that must bound memory streams a subset of the
+#' features per call and combines the results; the sums of different features
+#' are independent.
 #'
 #' @section Layout the stream must have:
 #' None in particular: batches and rows may arrive in any order, and features

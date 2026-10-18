@@ -73,8 +73,8 @@ Its layout requirement and checks are the same as `gram_stream()`'s.
 
 The cross-cell term of Moran's I, Geary's C and join counts: for each feature,
 `sum_e w_e x[i_e, g] x[j_e, g]` over the edges of a spatial graph. The stream
-is read once into a row-compressed table (about 12 bytes per stored value
-held, 28 at peak), so batch and row order do not matter, and each edge walks
+is read once and sorted in place into a row-compressed table (16 bytes per
+stored value), so batch and row order do not matter, and each edge walks
 its two cells' feature lists together. Feature sums are independent, so a
 caller bounds memory by streaming a subset of features per call. Edge blocks
 are summed in a fixed order, so the result is bit-identical at any thread

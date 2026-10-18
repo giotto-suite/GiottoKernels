@@ -40,10 +40,9 @@ For each feature \code{g}, computes \verb{sum_e w_e * x[i_e, g] * x[j_e, g]}, wh
 cross-cell term of Moran's I, Geary's C and join counts.
 }
 \details{
-The stream is read into memory once, about 28 bytes per stored value at
-peak (12 bytes held), so a caller that must bound memory streams a subset
-of the features per call and combines the results; the sums of different
-features are independent.
+The stream is read into memory once, 16 bytes per stored value, so a caller that must bound memory streams a subset of the
+features per call and combines the results; the sums of different features
+are independent.
 }
 \section{Layout the stream must have}{
 
