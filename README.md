@@ -85,6 +85,19 @@ T <- GiottoKernels::edge_products_stream(reader, from, to,
     n_rows = n_cells, n_features = n_genes, w = weights)
 ```
 
+### `graph_pairs_stream()`
+
+The edge list `edge_products_stream()` takes, built from a stream of graph
+edges in node ids and a node -> row map: each pair once as `a <= b`, edges
+leaving the rows dropped, and (with `dedupe`) a pair a directed graph lists
+twice collapsed to one at its mean weight. It reads int32 or int64 ids and
+float32 or float64 weights, so it takes an edge store's stream as is, and
+never materialises the edges in R.
+
+```r
+p <- GiottoKernels::graph_pairs_stream(edge_reader, node_row, weighted = TRUE)
+```
+
 ## Threads
 
 Multithreaded kernels take `n_threads`, default `NULL`:

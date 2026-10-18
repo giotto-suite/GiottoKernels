@@ -4,6 +4,7 @@ mod arrow_c;
 mod cells;
 mod edges;
 mod gram;
+mod pairs;
 mod project;
 
 use arrow_c::{ArrowArrayStream, Stream};
@@ -13,7 +14,8 @@ use arrow_c::{ArrowArrayStream, Stream};
 /// @noRd
 #[extendr]
 fn kernels_rs() -> Strings {
-    Strings::from_values(["gram_stream", "project_stream", "edge_products_stream"])
+    Strings::from_values(["gram_stream", "project_stream", "edge_products_stream",
+                          "graph_pairs_stream"])
 }
 
 /// Gram pass over a nanoarrow_array_stream of (row_id, col_id, value).
@@ -68,6 +70,20 @@ fn edge_products_stream_rs(stream: Robj, from: Robj, to: Robj, w: Robj,
     Ok(Doubles::from_values(out))
 }
 
+/// Canonical row pairs of a graph from a nanoarrow_array_stream of edges.
+/// Argument checks live in the R wrapper `graph_pairs_stream()`.
+/// @noRd
+#[extendr]
+fn graph_pairs_stream_rs(stream: Robj, node_row: Robj, weighted: bool, dedupe: bool)
+                         -> extendr_api::Result<List> {
+    let st = stream_arg(&stream, "graph_pairs_stream")?;
+    let map = node_row.as_integer_slice().ok_or_else(||
+        Error::Other("[graph_pairs_stream] `node_row` must be integer".into()))?;
+    let p = pairs::graph_pairs_stream(&st, map, weighted, dedupe)
+        .map_err(|e| Error::Other(format!("[graph_pairs_stream] {e}")))?;
+    Ok(list!(a = p.a, b = p.b, w = p.w))
+}
+
 fn stream_arg(stream: &Robj, site: &str) -> extendr_api::Result<Stream> {
     if !stream.inherits("nanoarrow_array_stream") || !stream.is_external_pointer() {
         return Err(Error::Other(format!("[{site}] `stream` must be a nanoarrow_array_stream")));
@@ -82,4 +98,5 @@ extendr_module! {
     fn gram_stream_rs;
     fn project_stream_rs;
     fn edge_products_stream_rs;
+    fn graph_pairs_stream_rs;
 }

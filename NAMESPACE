@@ -2,6 +2,7 @@
 
 export(edge_products_stream)
 export(gram_stream)
+export(graph_pairs_stream)
 export(has_kernel)
 export(kernel_threads)
 export(project_stream)
