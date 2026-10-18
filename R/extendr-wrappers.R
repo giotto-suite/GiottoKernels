@@ -20,4 +20,10 @@ gram_stream_rs <- function(stream, n_features, n_threads) .Call(wrap__gram_strea
 #' @noRd
 project_stream_rs <- function(stream, v, n_rows, n_threads) .Call(wrap__project_stream_rs, stream, v, n_rows, n_threads)
 
+#' Per-feature sums over graph edges from a nanoarrow_array_stream of
+#' (row_id, col_id, value). Argument checks live in the R wrapper
+#' `edge_products_stream()`; `w` is NULL for unit weights.
+#' @noRd
+edge_products_stream_rs <- function(stream, from, to, w, n_rows, n_features, n_threads) .Call(wrap__edge_products_stream_rs, stream, from, to, w, n_rows, n_features, n_threads)
+
 # nolint end
