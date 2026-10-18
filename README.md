@@ -69,6 +69,35 @@ coords <- GiottoKernels::project_stream(reader, V, n_rows = n_cells)
 
 Its layout requirement and checks are the same as `gram_stream()`'s.
 
+### `edge_products_stream()`
+
+The cross-cell term of Moran's I, Geary's C and join counts: for each feature,
+`sum_e w_e x[i_e, g] x[j_e, g]` over the edges of a spatial graph. The stream
+is read once and sorted in place into a row-compressed table (16 bytes per
+stored value), so batch and row order do not matter, and each edge walks
+its two cells' feature lists together. Feature sums are independent, so a
+caller bounds memory by streaming a subset of features per call. Edge blocks
+are summed in a fixed order, so the result is bit-identical at any thread
+count.
+
+```r
+T <- GiottoKernels::edge_products_stream(reader, from, to,
+    n_rows = n_cells, n_features = n_genes, w = weights)
+```
+
+### `graph_pairs_stream()`
+
+The edge list `edge_products_stream()` takes, built from a stream of graph
+edges in node ids and a node -> row map: each pair once as `a <= b`, edges
+leaving the rows dropped, and (with `dedupe`) a pair a directed graph lists
+twice collapsed to one at its mean weight. It reads int32 or int64 ids and
+float32 or float64 weights, so it takes an edge store's stream as is, and
+never materialises the edges in R.
+
+```r
+p <- GiottoKernels::graph_pairs_stream(edge_reader, node_row, weighted = TRUE)
+```
+
 ## Threads
 
 Multithreaded kernels take `n_threads`, default `NULL`:

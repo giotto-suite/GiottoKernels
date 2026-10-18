@@ -44,7 +44,10 @@ pub struct ArrowArrayStream {
 }
 
 /// A column the caller requires: its name and Arrow format string
-/// (`"i"` int32, `"g"` float64).
+/// (`"i"` int32, `"g"` float64). A stream column of a wider or narrower type
+/// is accepted and converted where that is lossless or checked: int64 (`"l"`)
+/// for int32, erroring on a value outside the int32 range, and float32
+/// (`"f"`) for float64.
 pub struct Field {
     pub name: &'static str,
     pub format: &'static str,
@@ -152,6 +155,15 @@ unsafe fn resolve_schema(sch: &ArrowSchema, want: &[Field]) -> Result<Vec<Resolv
             let c = &**sch.children.add(k);
             if cstr(c.name) == f.name.as_bytes() {
                 let got = cstr(c.format);
+                let alt: Option<&'static str> = match (f.format, got) {
+                    ("i", b"l") => Some("l"),
+                    ("g", b"f") => Some("f"),
+                    _ => None,
+                };
+                if let Some(a) = alt {
+                    found = Some((k, a));
+                    break;
+                }
                 if got != f.format.as_bytes() {
                     return Err(format!(
                         "column '{}' has Arrow type '{}', expected '{}'",
@@ -160,12 +172,12 @@ unsafe fn resolve_schema(sch: &ArrowSchema, want: &[Field]) -> Result<Vec<Resolv
                         f.format
                     ));
                 }
-                found = Some(k);
+                found = Some((k, f.format));
                 break;
             }
         }
         match found {
-            Some(k) => idx.push(Resolved { index: k, format: f.format }),
+            Some((k, fmt)) => idx.push(Resolved { index: k, format: fmt }),
             None => return Err(format!("stream has no column '{}'", f.name)),
         }
     }
@@ -188,7 +200,7 @@ unsafe fn copy_children(arr: &ArrowArray, cols: &[Resolved]) -> Result<(usize, V
         }
         if n == 0 {
             out.push(match r.format {
-                "g" => Column::F64(Vec::new()),
+                "g" | "f" => Column::F64(Vec::new()),
                 _ => Column::I32(Vec::new()),
             });
             continue;
@@ -201,6 +213,19 @@ unsafe fn copy_children(arr: &ArrowArray, cols: &[Resolved]) -> Result<(usize, V
         out.push(match r.format {
             "g" => Column::F64(std::slice::from_raw_parts((data as *const f64).add(off), n).to_vec()),
             "i" => Column::I32(std::slice::from_raw_parts((data as *const i32).add(off), n).to_vec()),
+            "f" => Column::F64(std::slice::from_raw_parts((data as *const f32).add(off), n)
+                .iter().map(|&x| x as f64).collect()),
+            "l" => {
+                let src = std::slice::from_raw_parts((data as *const i64).add(off), n);
+                let mut v = Vec::with_capacity(n);
+                for &x in src {
+                    if x < i32::MIN as i64 || x > i32::MAX as i64 {
+                        return Err("an int64 column holds a value outside the int32 range".into());
+                    }
+                    v.push(x as i32);
+                }
+                Column::I32(v)
+            }
             f => return Err(format!("unsupported Arrow format '{}'", f)),
         });
     }
